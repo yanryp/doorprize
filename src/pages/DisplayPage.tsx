@@ -26,7 +26,7 @@ export function DisplayPage({
 }: DisplayPageProps) {
   const [winners, setWinners] = useState<Participant[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
-  const [prizeCount, setPrizeCount] = useState(3);
+  const [prizeCount, setPrizeCount] = useState(1);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [showMode, setShowMode] = useState(false);
   const [showButton, setShowButton] = useState(true);
@@ -39,12 +39,14 @@ export function DisplayPage({
     await sleep(500);
     setStage('winners');
     
-    const shuffled = [...participants].sort(() => Math.random() - 0.5);
+    const shuffled1 = [...participants].sort(() => Math.random() - 0.5);
+    const shuffled2 = [...shuffled1].sort(() => Math.random() - 0.5);
+    const shuffled3 = [...shuffled2].sort(() => Math.random() - 0.5);
     const selectedWinners: Participant[] = [];
 
     for (let i = 0; i < prizeCount; i++) {
       await sleep(800);
-      selectedWinners.push(shuffled[i]);
+      selectedWinners.push(shuffled3[i]);
       setWinners([...selectedWinners]);
       triggerConfetti();
     }
