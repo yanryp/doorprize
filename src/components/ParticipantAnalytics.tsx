@@ -43,9 +43,9 @@ export function ParticipantAnalytics({ participants }: ParticipantAnalyticsProps
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {unitStats.length > 0 ? (
-          <div>
+          <div className="relative">
             <h3 className="text-xl font-medium mb-4">Statistik per Unit</h3>
-            <div className="h-[300px]">
+            <div className="h-[400px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -53,7 +53,7 @@ export function ParticipantAnalytics({ participants }: ParticipantAnalyticsProps
                     dataKey="value"
                     nameKey="name"
                     cx="50%"
-                    cy="50%"
+                    cy="40%"
                     outerRadius={100}
                     label={({ name, value }) => `${name}: ${value}`}
                   >
@@ -64,13 +64,22 @@ export function ParticipantAnalytics({ participants }: ParticipantAnalyticsProps
                       />
                     ))}
                   </Pie>
-                  <Legend />
+                  <Legend 
+                    layout="vertical"
+                    align="center"
+                    verticalAlign="bottom"
+                    wrapperStyle={{
+                      paddingTop: "20px",
+                      maxHeight: "150px",
+                      overflowY: "auto"
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center h-[300px] bg-white/10 rounded-lg">
+          <div className="flex items-center justify-center h-[400px] bg-white/10 rounded-lg">
             <p className="text-lg text-muted-foreground">
               Belum ada data statistik
             </p>
@@ -80,7 +89,7 @@ export function ParticipantAnalytics({ participants }: ParticipantAnalyticsProps
         <div>
           <h3 className="text-xl font-medium mb-4">Daftar Peserta</h3>
           {participants.length > 0 ? (
-            <ScrollArea className="h-[300px] pr-4">
+            <ScrollArea className="h-[400px] pr-4">
               <div className="space-y-2">
                 {participants
                   .sort((a, b) => a.name.localeCompare(b.name))
@@ -97,7 +106,7 @@ export function ParticipantAnalytics({ participants }: ParticipantAnalyticsProps
               </div>
             </ScrollArea>
           ) : (
-            <div className="flex items-center justify-center h-[300px] bg-white/10 rounded-lg">
+            <div className="flex items-center justify-center h-[400px] bg-white/10 rounded-lg">
               <p className="text-lg text-muted-foreground">
                 Belum ada peserta terdaftar
               </p>
