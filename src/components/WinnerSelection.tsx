@@ -23,7 +23,8 @@ export function WinnerSelection({
   setPrizeCount,
   adminControls = false,
 }: WinnerSelectionProps) {
-  const prizeOptions = Array.from({ length: Math.min(10, participantsCount || 10) }, (_, i) => i + 1);
+  // Increase max winners to 15
+  const prizeOptions = Array.from({ length: Math.min(15, participantsCount || 15) }, (_, i) => i + 1);
 
   if (adminControls) {
     return (
