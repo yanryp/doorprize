@@ -1,11 +1,5 @@
 import { Trophy } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Input } from './ui/input';
 
 interface WinnerSelectionProps {
   participantsCount: number;
@@ -23,29 +17,32 @@ export function WinnerSelection({
   setPrizeCount,
   adminControls = false,
 }: WinnerSelectionProps) {
-  // Increase max winners to 15
-  const prizeOptions = Array.from({ length: Math.min(15, participantsCount || 15) }, (_, i) => i + 1);
+  function formatTotalWinnerNewValue(e: React.ChangeEvent<HTMLInputElement>) {
+    const newValue = parseInt(e.target.value);
+
+    // don't change the value if the input is:
+    // - more than the total number of participants
+    // - less than 1 (meaning 0 or negative numbers)
+    if (
+      (newValue > participantsCount) ||
+      (newValue < 1)
+    ) return;
+
+    setPrizeCount(newValue);
+  }
 
   if (adminControls) {
     return (
       <div className="flex items-center gap-4 bg-white/10 rounded-lg p-4">
         <Trophy className="w-6 h-6 text-yellow-400" />
         <div className="font-medium text-lg">Jumlah Pemenang:</div>
-        <Select
-          value={prizeCount.toString()}
-          onValueChange={(value) => setPrizeCount(parseInt(value))}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Pilih Jumlah" />
-          </SelectTrigger>
-          <SelectContent>
-            {prizeOptions.map((num) => (
-              <SelectItem key={num} value={num.toString()}>
-                {num} Pemenang
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Input
+          value={prizeCount}
+          onChange={formatTotalWinnerNewValue}
+          type='number'
+          min={0}
+          max={participantsCount}
+        />
       </div>
     );
   }

@@ -26,7 +26,7 @@ export function DisplayPage({
 }: DisplayPageProps) {
   const [winners, setWinners] = useState<Participant[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
-  const [prizeCount, setPrizeCount] = useState(3);
+  const [prizeCount, setPrizeCount] = useState(1);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [showMode, setShowMode] = useState(false);
   const [showButton, setShowButton] = useState(true);
