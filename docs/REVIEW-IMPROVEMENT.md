@@ -2,7 +2,27 @@
 
 Tanggal uji: 2 Oktober 2026 · Cara uji: `npm ci` lalu `vite` (dev server), alur dijalankan otomatis dengan Playwright (HP 390×844 untuk peserta, laptop 1600×900 untuk admin/proyektor), memakai `data1.csv` (500 peserta).
 
-## Screenshot
+## Status implementasi (v2)
+
+Keputusan: FastAPI, input peserta tetap lewat impor CSV di laptop multimedia (tanpa HP jemaat), undian 1x per sesi, pemenang tidak hadir = hangus.
+
+| Temuan | Status |
+|---|---|
+| Data di localStorage per perangkat | Diganti SQLite di backend FastAPI lokal |
+| Password di kode frontend | Login server-side (scrypt + cookie HttpOnly), lockout 5x gagal |
+| Build produksi gagal | Diperbaiki; file mati & komponen tidak terpakai dihapus |
+| Pemenang tidak tersimpan / hilang saat refresh | Tersimpan per sesi; layar proyektor memuat ulang hasil yang sama |
+| Pengacakan bias | `random.Random(seed).sample` di server, seed + hash daftar peserta disimpan, bisa diverifikasi |
+| Undian bisa diulang | Dikunci 1x per sesi (constraint DB), daftar peserta terkunci setelah undian |
+| Tidak ada audit trail | Tabel `audit_log` + file log berotasi; status Diambil/Hangus tercatat |
+| Durasi undian tergantung jumlah peserta | Tetap ±6 detik + 0,9 detik per pemenang |
+| Parser CSV naif | Modul `csv` Python; BOM, `;` (Excel Indonesia), kutip, duplikat ditangani |
+| Unit tidak seragam | Master SDM (opsional) menyeragamkan nama & unit lewat NIP / nama |
+| Pemenang berulang antar minggu | Opsi "kecualikan pemenang N minggu terakhir" (default mati) |
+
+Screenshot versi baru: `screenshots/v2-*.png`. Screenshot di bawah ini adalah kondisi **sebelum** perbaikan.
+
+## Screenshot (sebelum)
 
 | # | File | Keterangan |
 |---|------|------------|

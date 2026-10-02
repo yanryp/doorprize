@@ -1,10 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Sparkles } from 'lucide-react';
-import type { Participant } from '@/types';
+
+export interface WinnerCard {
+  id: number;
+  name: string;
+  unit: string;
+}
 
 interface WinnerCardsProps {
-  winners: Participant[];
+  winners: WinnerCard[];
 }
 
 export function WinnerCards({ winners }: WinnerCardsProps) {
@@ -92,7 +97,7 @@ export function WinnerCards({ winners }: WinnerCardsProps) {
       variants={container}
       initial="hidden"
       animate="show"
-      className={`grid ${getGridCols()} gap-6 mx-auto px-4 h-[calc(100vh-12rem)] place-content-center`}
+      className={`grid ${getGridCols()} gap-6 mx-auto px-4 w-full min-h-[calc(100vh-16rem)] place-content-center py-4`}
     >
       <AnimatePresence mode="wait">
         {winners.map((winner, index) => (
