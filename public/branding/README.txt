@@ -1,4 +1,8 @@
 Letakkan logo resmi BSG di folder ini sebelum "npm run build":
-  logo.svg  (disarankan, tajam di proyektor)  atau  logo.png  (min. tinggi 400 px, latar transparan)
+  logo.svg (disarankan)  atau  logo.png (latar transparan, tinggi min. 400 px)
 Untuk laptop yang sudah memiliki folder dist, salin juga ke dist\branding\.
-Gunakan versi logo untuk latar gelap (putih/emas) karena layar proyektor berwarna biru tua.
+
+Logo versi warna penuh (tulisan hitam, api merah) dipakai apa adanya;
+di layar proyektor otomatis ditampilkan di atas plat putih agar kontras.
+
+File logo sengaja tidak di-commit (repo ini publik) - lihat .gitignore.

@@ -215,7 +215,7 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
             </motion.span>
             Doorprize
             <AnimatedBrandLogo
-              className="h-14 lg:h-20"
+              className="ml-2 h-12 lg:h-16"
               fallback={
                 <motion.span
                   animate={{ rotate: [0, 12, -12, 8, -8, 0] }}
