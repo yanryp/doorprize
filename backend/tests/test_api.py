@@ -150,6 +150,8 @@ def test_security_headers(client: TestClient):
     r = client.get("/api/sessions")
     assert r.headers["x-frame-options"] == "DENY"
     assert r.headers["cache-control"] == "no-store"
+    # canvas-confetti renders in a blob: worker
+    assert "worker-src 'self' blob:" in r.headers["content-security-policy"]
 
 
 def test_ambiguous_name_narrowed_by_unit(client: TestClient):

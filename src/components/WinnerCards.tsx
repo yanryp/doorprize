@@ -116,7 +116,7 @@ export function WinnerCards({ winners }: WinnerCardsProps) {
           >
             <Card className={`relative overflow-hidden ${getCardSize()} w-full group`}>
               {/* Base gradient background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-900/90 to-indigo-900/90" />
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-900/95 to-slate-900/95" />
               
               {/* Shimmering overlay */}
               <motion.div
@@ -138,7 +138,7 @@ export function WinnerCards({ winners }: WinnerCardsProps) {
               {/* Animated border with double gradient */}
               <div className="absolute inset-0">
                 <div className="absolute inset-0 p-[2px] rounded-lg bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300">
-                  <div className="h-full w-full rounded-[6px] bg-gradient-to-br from-purple-900/90 to-indigo-900/90" />
+                  <div className="h-full w-full rounded-[6px] bg-gradient-to-br from-blue-900/95 to-slate-900/95" />
                 </div>
                 <motion.div
                   className="absolute inset-0 p-[2px] rounded-lg bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-50"
@@ -208,7 +208,7 @@ export function WinnerCards({ winners }: WinnerCardsProps) {
 
                 {/* Winner unit with shimmer */}
                 <motion.div 
-                  className={`text-yellow-100/90 ${fontSizes.unit} relative`}
+                  className={`text-yellow-100/90 ${fontSizes.unit} relative overflow-hidden px-2`}
                   animate={{ 
                     opacity: [0.7, 1, 0.7]
                   }}

@@ -21,6 +21,8 @@ Aplikasi undian doorprize untuk ibadah oikumene mingguan (Kamis) di Kantor Pusat
    - File Excel "CSV (pemisah titik koma)" juga diterima.
 4. Klik **Buka Layar Proyektor**, seret jendela ke layar proyektor, tekan ikon layar penuh / F11.
 5. Isi jumlah pemenang → **Mulai Undian** → konfirmasi. **Undian hanya bisa sekali per sesi.**
+   Pemenang tampil otomatis satu per satu (±2,7 detik per orang) dengan suara & confetti.
+   Suara dibuat langsung di browser (tanpa file); tombol speaker di pojok kanan atas untuk mute.
 6. Kembali ke panel admin: tandai tiap pemenang **Diambil** atau **Hangus**.
 7. **Unduh CSV** hasil untuk laporan panitia.
 

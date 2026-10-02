@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Expand, Gift, Loader2, Users } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Expand, Gift, Loader2, Sparkles, Trophy, Users, Volume2, VolumeX } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,15 +16,27 @@ import { Input } from '@/components/ui/input';
 import { BrandLogo } from '@/components/BrandLogo';
 import { WinnerCards } from '@/components/WinnerCards';
 import { api } from '@/lib/api';
-import { triggerConfetti } from '@/lib/confetti';
+import { fireworks, goldRain, startCelebration, triggerConfetti } from '@/lib/confetti';
+import { sfx } from '@/lib/sound';
 import { toast } from '@/hooks/use-toast';
 import { errorMessage, formatDate } from '@/lib/utils';
 import type { Draw, SessionDetail } from '@/types';
 
 type Phase = 'loading' | 'ready' | 'rolling' | 'revealing' | 'done';
 
+interface Spot {
+  name: string;
+  unit: string;
+  rank?: number;
+  stopped: boolean;
+}
+
+/** Opening reel, independent of participant count. */
 const ROLL_MS = 6000;
-const REVEAL_INTERVAL_MS = 900;
+/** Short reel before each winner after the first. */
+const MINI_ROLL_MS = 1000;
+/** How long each winner stays in the spotlight. */
+const SPOTLIGHT_MS = 1700;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -41,15 +53,18 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
   const [excludeWeeks, setExcludeWeeks] = useState(0);
   const [eligible, setEligible] = useState<number | null>(null);
   const [confirming, setConfirming] = useState(false);
-  const [reelName, setReelName] = useState<{ name: string; unit: string } | null>(null);
-  const audio = useRef<HTMLAudioElement | null>(null);
+  const [spot, setSpot] = useState<Spot | null>(null);
+  const [muted, setMuted] = useState(sfx.muted);
+  const animating = useRef(false);
 
   const load = useCallback(async () => {
     try {
       const detail = await api.session(sessionId);
+      if (animating.current) return;
       setSession(detail);
       if (detail.draw_id) {
         const existing = await api.draw(sessionId);
+        if (animating.current) return;
         setDraw(existing);
         setRevealed(existing.winners.length);
         setPhase('done');
@@ -80,47 +95,78 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
       .catch(() => setEligible(null));
   }, [sessionId, excludeWeeks, phase, session?.attendees.length]);
 
+  // Endless confetti on the final screen.
+  useEffect(() => {
+    if (phase !== 'done') return;
+    return startCelebration();
+  }, [phase]);
+
   const attendees = useMemo(() => session?.attendees ?? [], [session]);
   const maxWinners = eligible ?? attendees.length;
   const countValid = winnerCount >= 1 && winnerCount <= maxWinners;
 
+  /** Cycle random names, slowing down, for `ms` milliseconds. */
+  const spin = async (ms: number, minDelay: number, maxDelay: number) => {
+    const started = performance.now();
+    while (performance.now() - started < ms) {
+      const progress = (performance.now() - started) / ms;
+      const pick = attendees[Math.floor(Math.random() * attendees.length)];
+      setSpot({ name: pick.name, unit: pick.unit, stopped: false });
+      sfx.tick();
+      await sleep(minDelay + progress * progress * (maxDelay - minDelay));
+    }
+  };
+
+  const celebrate = () => {
+    sfx.tada();
+    sfx.firework(0.3);
+    fireworks(3);
+    goldRain(1500);
+    triggerConfetti(900);
+  };
+
   const startDraw = async () => {
     setConfirming(false);
+    sfx.unlock();
+    animating.current = true;
     setPhase('rolling');
-    try {
-      audio.current = new Audio('/drumroll.mp3');
-      audio.current.loop = true;
-      await audio.current.play();
-    } catch {
-      /* audio is optional */
-    }
+    sfx.startDrumroll();
 
     const drawRequest = api.runDraw(sessionId, winnerCount, excludeWeeks);
-    // Fixed-length reel regardless of participant count; slows down towards the end.
-    const started = performance.now();
-    while (performance.now() - started < ROLL_MS) {
-      const progress = (performance.now() - started) / ROLL_MS;
-      setReelName(attendees[Math.floor(Math.random() * attendees.length)]);
-      await sleep(40 + progress * progress * 260);
+    await spin(ROLL_MS, 40, 300);
+
+    let result: Draw;
+    try {
+      result = await drawRequest;
+    } catch (err) {
+      sfx.stopDrumroll(false);
+      animating.current = false;
+      toast({ title: 'Undian gagal', description: errorMessage(err), variant: 'destructive' });
+      setPhase('ready');
+      await load();
+      return;
     }
 
-    try {
-      const result = await drawRequest;
-      audio.current?.pause();
-      setDraw(result);
-      setPhase('revealing');
-      for (let i = 1; i <= result.winners.length; i++) {
-        setRevealed(i);
-        triggerConfetti();
-        await sleep(REVEAL_INTERVAL_MS);
-      }
-      setPhase('done');
-    } catch (err) {
-      audio.current?.pause();
-      toast({ title: 'Undian gagal', description: errorMessage(err), variant: 'destructive' });
-      await load();
-      setPhase((p) => (p === 'rolling' ? 'ready' : p));
+    setDraw(result);
+    setPhase('revealing');
+    for (const [i, winner] of result.winners.entries()) {
+      if (i > 0) await spin(MINI_ROLL_MS, 45, 220);
+      if (i === 0) sfx.stopDrumroll();
+      setSpot({ name: winner.name, unit: winner.unit, rank: winner.rank, stopped: true });
+      celebrate();
+      await sleep(SPOTLIGHT_MS);
+      setRevealed(i + 1);
     }
+    animating.current = false;
+    setSpot(null);
+    setPhase('done');
+    sfx.firework();
+    fireworks(5, 200);
+  };
+
+  const toggleMute = () => {
+    sfx.setMuted(!muted);
+    setMuted(!muted);
   };
 
   const toggleFullscreen = () => {
@@ -128,30 +174,55 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
     else document.documentElement.requestFullscreen().catch(() => undefined);
   };
 
-  const cards = (draw?.winners ?? [])
-    .slice(0, revealed)
-    .map((w) => ({ id: w.rank, name: w.name, unit: w.unit }));
+  const winners = draw?.winners ?? [];
+  const cards = winners.slice(0, revealed).map((w) => ({ id: w.rank, name: w.name, unit: w.unit }));
+  const showBeams = phase === 'rolling' || phase === 'revealing' || phase === 'done';
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(ellipse_at_top,_#1e3a8a_0%,_#0f172a_55%,_#020617_100%)] text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.08)_1px,_transparent_1px)] bg-[length:28px_28px]" />
+      {showBeams && <SpotlightBeams intense={phase !== 'done'} />}
 
       <BrandLogo className="absolute left-6 top-5 z-10 h-14 w-auto opacity-90 lg:h-16" />
 
-      <button
-        onClick={toggleFullscreen}
-        className="absolute right-4 top-4 z-20 rounded-md p-2 text-white/40 transition hover:bg-white/10 hover:text-white"
-        title="Layar penuh (F11)"
-      >
-        <Expand className="h-5 w-5" />
-      </button>
+      <div className="absolute right-4 top-4 z-20 flex gap-1">
+        <button
+          onClick={toggleMute}
+          className="rounded-md p-2 text-white/40 transition hover:bg-white/10 hover:text-white"
+          title={muted ? 'Nyalakan suara' : 'Matikan suara'}
+        >
+          {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+        </button>
+        <button
+          onClick={toggleFullscreen}
+          className="rounded-md p-2 text-white/40 transition hover:bg-white/10 hover:text-white"
+          title="Layar penuh (F11)"
+        >
+          <Expand className="h-5 w-5" />
+        </button>
+      </div>
 
       <div className="relative flex min-h-screen flex-col px-6 py-8">
         <header className="text-center">
-          <h1 className="flex items-center justify-center gap-4 text-5xl font-bold tracking-tight text-amber-300 lg:text-7xl">
-            <Gift className="h-12 w-12 lg:h-16 lg:w-16" />
+          <motion.h1
+            className="flex items-center justify-center gap-4 text-5xl font-bold tracking-tight lg:text-7xl"
+            animate={{ color: ['#fcd34d', '#fde68a', '#f59e0b', '#fcd34d'] }}
+            transition={{ duration: 4, repeat: Infinity }}
+          >
+            <motion.span
+              animate={{ rotate: [0, -12, 12, -8, 8, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5 }}
+            >
+              <Gift className="h-12 w-12 lg:h-16 lg:w-16" />
+            </motion.span>
             Doorprize
-          </h1>
+            <motion.span
+              animate={{ rotate: [0, 12, -12, 8, -8, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5 }}
+            >
+              <Trophy className="h-12 w-12 lg:h-16 lg:w-16" />
+            </motion.span>
+          </motion.h1>
           {session && (
             <p className="mt-3 text-xl text-blue-100/80 lg:text-2xl">
               {session.title} · {formatDate(session.date)}
@@ -175,45 +246,45 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
                 </div>
                 <p className="mt-2 text-2xl text-blue-100/80">jemaat terdaftar</p>
               </div>
-              <Button
-                size="lg"
-                disabled={!countValid}
-                onClick={() => setConfirming(true)}
-                className="h-auto rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-16 py-6 text-3xl font-semibold text-slate-900 shadow-[0_0_40px_rgba(251,191,36,0.35)] hover:from-amber-300 hover:to-amber-500"
+              <motion.div
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
               >
-                Mulai Undian
-              </Button>
+                <Button
+                  size="lg"
+                  disabled={!countValid}
+                  onClick={() => setConfirming(true)}
+                  className="h-auto rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-16 py-6 text-3xl font-semibold text-slate-900 shadow-[0_0_50px_rgba(251,191,36,0.45)] hover:from-amber-300 hover:to-amber-500"
+                >
+                  Mulai Undian
+                </Button>
+              </motion.div>
             </motion.div>
           )}
 
-          {phase === 'rolling' && reelName && (
-            <div className="w-full max-w-4xl text-center">
-              <p className="mb-6 text-2xl uppercase tracking-[0.3em] text-amber-300/80">Mengundi…</p>
-              <div className="rounded-2xl border border-amber-300/40 bg-white/5 px-8 py-12 shadow-[0_0_60px_rgba(251,191,36,0.15)] backdrop-blur">
-                <motion.div
-                  key={`${reelName.name}-${reelName.unit}`}
-                  initial={{ y: 24, opacity: 0.2 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.08 }}
-                >
-                  <div className="truncate text-6xl font-bold lg:text-7xl">{reelName.name}</div>
-                  <div className="mt-3 text-3xl text-amber-200/80">{reelName.unit}</div>
-                </motion.div>
-              </div>
+          {(phase === 'rolling' || phase === 'revealing') && spot && (
+            <div className="flex w-full flex-col items-center">
+              <SpotlightName spot={spot} total={winners.length} />
+              {phase === 'revealing' && cards.length > 0 && <HallOfFame cards={cards} />}
             </div>
           )}
 
-          {(phase === 'revealing' || phase === 'done') && (
+          {phase === 'done' && (
             <div className="w-full">
-              <p className="mb-2 text-center text-2xl text-amber-200/90">
-                Selamat kepada {draw?.winners.length === 1 ? 'pemenang' : `${draw?.winners.length} pemenang`}!
-              </p>
+              <motion.p
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', bounce: 0.5 }}
+                className="mb-2 flex items-center justify-center gap-3 text-center text-3xl font-semibold text-amber-200 lg:text-4xl"
+              >
+                <Sparkles className="h-8 w-8" />
+                Selamat kepada {winners.length === 1 ? 'pemenang' : `${winners.length} pemenang`}!
+                <Sparkles className="h-8 w-8" />
+              </motion.p>
               <WinnerCards winners={cards} />
-              {phase === 'done' && (
-                <p className="mt-2 text-center text-lg text-blue-100/60">
-                  Hadiah diambil hari ini; bila pemenang tidak hadir, hadiah hangus.
-                </p>
-              )}
+              <p className="mt-2 text-center text-lg text-blue-100/60">
+                Hadiah diambil hari ini; bila pemenang tidak hadir, hadiah hangus.
+              </p>
             </div>
           )}
         </main>
@@ -269,6 +340,106 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+/** Stage lights sweeping from the top corners. */
+function SpotlightBeams({ intense }: { intense: boolean }) {
+  const beam = (origin: 'left' | 'right', delay: number) => (
+    <motion.div
+      className="pointer-events-none absolute top-[-20%] h-[140%] w-[140%]"
+      style={{
+        [origin]: '-20%',
+        transformOrigin: `${origin === 'left' ? '20%' : '80%'} 0%`,
+        background: `conic-gradient(from 180deg at ${origin === 'left' ? '20%' : '80%'} 0%, transparent 0deg, rgba(252,211,77,${intense ? 0.28 : 0.14}) 8deg, transparent 16deg)`,
+      }}
+      animate={{ rotate: origin === 'left' ? [-25, 20, -25] : [25, -20, 25] }}
+      transition={{ duration: intense ? 3.5 : 7, repeat: Infinity, ease: 'easeInOut', delay }}
+    />
+  );
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden mix-blend-screen">
+      {beam('left', 0)}
+      {beam('right', 0.6)}
+    </div>
+  );
+}
+
+/** Big centre card: spinning names, then the winner with a shake and glow. */
+function SpotlightName({ spot, total }: { spot: Spot; total: number }) {
+  return (
+    <div className="w-full max-w-5xl text-center">
+      <div className="mb-6 h-10 text-2xl uppercase tracking-[0.3em] text-amber-300/90 lg:text-3xl">
+        {spot.stopped && spot.rank ? (
+          <motion.span
+            key={`label-${spot.rank}`}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            Pemenang ke-{spot.rank}
+            {total > 1 && <span className="text-amber-300/50"> / {total}</span>}
+          </motion.span>
+        ) : (
+          <motion.span animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 0.8, repeat: Infinity }}>
+            Mengundi…
+          </motion.span>
+        )}
+      </div>
+      <motion.div
+        key={spot.stopped ? `win-${spot.rank}` : 'reel'}
+        className={`relative rounded-2xl border px-8 py-12 backdrop-blur ${
+          spot.stopped
+            ? 'border-amber-300 bg-gradient-to-br from-blue-900/90 to-slate-900/90 shadow-[0_0_80px_rgba(251,191,36,0.55)]'
+            : 'border-amber-300/40 bg-white/5 shadow-[0_0_60px_rgba(251,191,36,0.15)]'
+        }`}
+        animate={
+          spot.stopped
+            ? { x: [0, -14, 14, -10, 10, -5, 5, 0], scale: [1, 1.12, 1.04] }
+            : { x: 0, scale: 1 }
+        }
+        transition={{ duration: 0.6 }}
+      >
+        <motion.div
+          key={`${spot.name}-${spot.unit}-${spot.stopped}`}
+          initial={spot.stopped ? { scale: 0.6, opacity: 0 } : { y: 24, opacity: 0.2 }}
+          animate={{ scale: 1, y: 0, opacity: 1 }}
+          transition={{ duration: spot.stopped ? 0.35 : 0.08 }}
+        >
+          <div
+            className={`truncate font-bold ${
+              spot.stopped ? 'text-7xl text-amber-200 lg:text-8xl' : 'text-6xl text-white/90 lg:text-7xl'
+            }`}
+            style={spot.stopped ? { filter: 'drop-shadow(0 0 18px rgba(251,191,36,0.75))' } : undefined}
+          >
+            {spot.name}
+          </div>
+          <div className="mt-3 text-3xl text-amber-100/80 lg:text-4xl">{spot.unit}</div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
+/** Winners revealed so far, collected under the spotlight. */
+function HallOfFame({ cards }: { cards: { id: number; name: string; unit: string }[] }) {
+  return (
+    <div className="mt-10 flex max-w-6xl flex-wrap justify-center gap-3">
+      <AnimatePresence>
+        {cards.map((c) => (
+          <motion.div
+            key={c.id}
+            initial={{ y: -120, scale: 1.4, opacity: 0 }}
+            animate={{ y: 0, scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', bounce: 0.45, duration: 0.7 }}
+            className="rounded-xl border border-amber-300/60 bg-gradient-to-br from-blue-900/90 to-slate-900/90 px-5 py-3 text-center shadow-[0_0_20px_rgba(251,191,36,0.25)]"
+          >
+            <div className="text-xs text-amber-300/80">#{c.id}</div>
+            <div className="font-semibold text-amber-100">{c.name}</div>
+            <div className="text-xs text-blue-100/70">{c.unit}</div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }
