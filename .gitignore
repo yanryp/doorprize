@@ -31,4 +31,4 @@ __pycache__
 .pytest_cache
 
 # Brand logo: copy locally, do not publish in this public repo
-public/branding/logo.*
+public/branding/logo*.*

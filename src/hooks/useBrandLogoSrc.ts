@@ -1,9 +1,20 @@
 import { useEffect, useState } from 'react';
 
-// Drop the official logo into public/branding/ (logo.svg preferred, logo.png also works).
-const SOURCES = ['/branding/logo.svg', '/branding/logo.png'];
+export type LogoVariant = 'color' | 'white';
 
-let cached: Promise<string | null> | null = null;
+// Drop the official logos into public/branding/ (SVG preferred, PNG also works).
+// "white" is the reversed logo for dark/blue backgrounds; it falls back to the colour logo.
+const SOURCES: Record<LogoVariant, string[]> = {
+  color: ['/branding/logo.svg', '/branding/logo.png'],
+  white: [
+    '/branding/logo-white.svg',
+    '/branding/logo-white.png',
+    '/branding/logo.svg',
+    '/branding/logo.png',
+  ],
+};
+
+const cache = new Map<LogoVariant, Promise<string | null>>();
 
 function probe(src: string): Promise<boolean> {
   return new Promise((resolve) => {
@@ -14,19 +25,27 @@ function probe(src: string): Promise<boolean> {
   });
 }
 
-/** Resolves to the first logo file that exists, or null. Probed once per page load. */
-export function useBrandLogoSrc(): string | null | undefined {
-  const [src, setSrc] = useState<string | null | undefined>(undefined);
-  useEffect(() => {
-    cached ??= (async () => {
-      for (const candidate of SOURCES) if (await probe(candidate)) return candidate;
+function resolveLogo(variant: LogoVariant): Promise<string | null> {
+  let pending = cache.get(variant);
+  if (!pending) {
+    pending = (async () => {
+      for (const candidate of SOURCES[variant]) if (await probe(candidate)) return candidate;
       return null;
     })();
+    cache.set(variant, pending);
+  }
+  return pending;
+}
+
+/** Resolves to the first logo file that exists, or null. Probed once per page load. */
+export function useBrandLogoSrc(variant: LogoVariant = 'color'): string | null | undefined {
+  const [src, setSrc] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
     let alive = true;
-    cached.then((found) => alive && setSrc(found));
+    resolveLogo(variant).then((found) => alive && setSrc(found));
     return () => {
       alive = false;
     };
-  }, []);
+  }, [variant]);
   return src;
 }

@@ -20,7 +20,7 @@ export function BrandLogo({ className, fallback = null }: BrandLogoProps) {
  * rotated or distorted.
  */
 export function AnimatedBrandLogo({ className, fallback = null }: BrandLogoProps) {
-  const src = useBrandLogoSrc();
+  const src = useBrandLogoSrc('white');
   if (src === undefined) return null;
   if (src === null) return <>{fallback}</>;
   const mask = {
