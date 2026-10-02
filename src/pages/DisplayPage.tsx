@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { BrandLogo } from '@/components/BrandLogo';
+import { AnimatedBrandLogo } from '@/components/BrandLogo';
 import { WinnerCards } from '@/components/WinnerCards';
 import { api } from '@/lib/api';
 import { fireworks, goldRain, startCelebration, triggerConfetti } from '@/lib/confetti';
@@ -183,8 +183,6 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.08)_1px,_transparent_1px)] bg-[length:28px_28px]" />
       {showBeams && <SpotlightBeams intense={phase !== 'done'} />}
 
-      <BrandLogo className="absolute left-6 top-5 z-10 h-14 w-auto opacity-90 lg:h-16" />
-
       <div className="absolute right-4 top-4 z-20 flex gap-1">
         <button
           onClick={toggleMute}
@@ -216,12 +214,17 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
               <Gift className="h-12 w-12 lg:h-16 lg:w-16" />
             </motion.span>
             Doorprize
-            <motion.span
-              animate={{ rotate: [0, 12, -12, 8, -8, 0] }}
-              transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5 }}
-            >
-              <Trophy className="h-12 w-12 lg:h-16 lg:w-16" />
-            </motion.span>
+            <AnimatedBrandLogo
+              className="h-14 lg:h-20"
+              fallback={
+                <motion.span
+                  animate={{ rotate: [0, 12, -12, 8, -8, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5 }}
+                >
+                  <Trophy className="h-12 w-12 lg:h-16 lg:w-16" />
+                </motion.span>
+              }
+            />
           </motion.h1>
           {session && (
             <p className="mt-3 text-xl text-blue-100/80 lg:text-2xl">
