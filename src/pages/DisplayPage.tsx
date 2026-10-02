@@ -283,7 +283,7 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
               </motion.p>
               <WinnerCards winners={cards} />
               <p className="mt-2 text-center text-lg text-blue-100/60">
-                Hadiah diambil hari ini; bila pemenang tidak hadir, hadiah hangus.
+                Pemenang dipersilakan maju mengambil hadiah sekarang. Bila tidak hadir, hadiah hangus.
               </p>
             </div>
           )}
