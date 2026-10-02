@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BrandLogo } from '@/components/BrandLogo';
 import { SessionPanel } from '@/components/SessionPanel';
 import { EmployeePanel } from '@/components/EmployeePanel';
 import { HistoryPanel } from '@/components/HistoryPanel';
@@ -67,9 +68,14 @@ export function AdminPage({ onLogout }: AdminPageProps) {
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-amber-100 p-2">
-              <Gift className="h-5 w-5 text-amber-700" />
-            </div>
+            <BrandLogo
+              className="h-9 w-auto"
+              fallback={
+                <div className="rounded-lg bg-amber-100 p-2">
+                  <Gift className="h-5 w-5 text-amber-700" />
+                </div>
+              }
+            />
             <div>
               <h1 className="font-semibold leading-tight">Doorprize Ibadah Oikumene</h1>
               <p className="text-xs text-muted-foreground">Panel Admin</p>

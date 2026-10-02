@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { BrandLogo } from '@/components/BrandLogo';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { api } from '@/lib/api';
 import { errorMessage } from '@/lib/utils';
@@ -37,9 +38,14 @@ export function LoginPage({ passwordSet, onLogin }: LoginPageProps) {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-4">
       <Card className="w-full max-w-sm p-8">
         <div className="mb-6 flex flex-col items-center gap-2 text-center">
-          <div className="rounded-full bg-amber-100 p-3">
-            <Gift className="h-7 w-7 text-amber-700" />
-          </div>
+          <BrandLogo
+            className="mb-2 h-14 w-auto"
+            fallback={
+              <div className="rounded-full bg-amber-100 p-3">
+                <Gift className="h-7 w-7 text-amber-700" />
+              </div>
+            }
+          />
           <h1 className="text-xl font-semibold">Doorprize Ibadah Oikumene</h1>
           <p className="text-sm text-muted-foreground">Masuk sebagai admin untuk melanjutkan</p>
         </div>

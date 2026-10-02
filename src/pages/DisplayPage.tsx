@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { BrandLogo } from '@/components/BrandLogo';
 import { WinnerCards } from '@/components/WinnerCards';
 import { api } from '@/lib/api';
 import { triggerConfetti } from '@/lib/confetti';
@@ -134,6 +135,8 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(ellipse_at_top,_#1e3a8a_0%,_#0f172a_55%,_#020617_100%)] text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.08)_1px,_transparent_1px)] bg-[length:28px_28px]" />
+
+      <BrandLogo className="absolute left-6 top-5 z-10 h-14 w-auto opacity-90 lg:h-16" />
 
       <button
         onClick={toggleFullscreen}
