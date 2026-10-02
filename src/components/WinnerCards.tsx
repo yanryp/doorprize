@@ -116,7 +116,7 @@ export function WinnerCards({ winners }: WinnerCardsProps) {
           >
             <Card className={`relative overflow-hidden ${getCardSize()} w-full group`}>
               {/* Base gradient background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-900/95 to-slate-900/95" />
+              <div className="absolute inset-0 bg-gradient-to-br from-sky-700/95 via-sky-800/95 to-sky-950/95" />
               
               {/* Shimmering overlay */}
               <motion.div
@@ -138,7 +138,7 @@ export function WinnerCards({ winners }: WinnerCardsProps) {
               {/* Animated border with double gradient */}
               <div className="absolute inset-0">
                 <div className="absolute inset-0 p-[2px] rounded-lg bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300">
-                  <div className="h-full w-full rounded-[6px] bg-gradient-to-br from-blue-900/95 to-slate-900/95" />
+                  <div className="h-full w-full rounded-[6px] bg-gradient-to-br from-sky-700/95 via-sky-800/95 to-sky-950/95" />
                 </div>
                 <motion.div
                   className="absolute inset-0 p-[2px] rounded-lg bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-50"
@@ -235,7 +235,7 @@ export function WinnerCards({ winners }: WinnerCardsProps) {
 
                 {/* Ambient glow effects */}
                 <motion.div 
-                  className="absolute -bottom-20 -right-20 w-40 h-40 bg-yellow-400/20 rounded-full blur-3xl"
+                  className="absolute -bottom-20 -right-20 w-40 h-40 bg-sky-300/30 rounded-full blur-3xl"
                   animate={{
                     scale: [1, 1.2, 1],
                     opacity: [0.3, 0.5, 0.3]
@@ -247,7 +247,7 @@ export function WinnerCards({ winners }: WinnerCardsProps) {
                   }}
                 />
                 <motion.div 
-                  className="absolute -top-20 -left-20 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl"
+                  className="absolute -top-20 -left-20 w-40 h-40 bg-white/15 rounded-full blur-3xl"
                   animate={{
                     scale: [1, 1.3, 1],
                     opacity: [0.3, 0.5, 0.3]

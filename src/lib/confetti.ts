@@ -1,7 +1,7 @@
 import confetti from 'canvas-confetti';
 
-// BSG-aligned palette: gold, white, blue.
-const COLORS = ['#fcd34d', '#f59e0b', '#fde68a', '#ffffff', '#60a5fa', '#1d4ed8'];
+// Palette for the sky-blue theme: gold, white, light and deep blue.
+const COLORS = ['#fcd34d', '#f59e0b', '#fde68a', '#ffffff', '#bae6fd', '#1e40af'];
 const GOLD = ['#fcd34d', '#f59e0b', '#fde68a', '#fffbeb'];
 
 /** Side cannons from both bottom corners. */

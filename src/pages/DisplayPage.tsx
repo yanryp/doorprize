@@ -179,8 +179,8 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
   const showBeams = phase === 'rolling' || phase === 'revealing' || phase === 'done';
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(ellipse_at_top,_#1e3a8a_0%,_#0f172a_55%,_#020617_100%)] text-white">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.08)_1px,_transparent_1px)] bg-[length:28px_28px]" />
+    <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(ellipse_at_top,_#0ea5e9_0%,_#0369a1_45%,_#0c4a6e_100%)] text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.10)_1px,_transparent_1px)] bg-[length:28px_28px]" />
       {showBeams && <SpotlightBeams intense={phase !== 'done'} />}
 
       <div className="absolute right-4 top-4 z-20 flex gap-1">
@@ -227,7 +227,7 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
             />
           </motion.h1>
           {session && (
-            <p className="mt-3 text-xl text-blue-100/80 lg:text-2xl">
+            <p className="mt-3 text-xl text-sky-50/90 lg:text-2xl">
               {session.title} · {formatDate(session.date)}
             </p>
           )}
@@ -247,7 +247,7 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
                   <Users className="h-20 w-20 text-amber-300/80" />
                   {attendees.length}
                 </div>
-                <p className="mt-2 text-2xl text-blue-100/80">jemaat terdaftar</p>
+                <p className="mt-2 text-2xl text-sky-50/90">jemaat terdaftar</p>
               </div>
               <motion.div
                 animate={{ scale: [1, 1.05, 1] }}
@@ -285,7 +285,7 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
                 <Sparkles className="h-8 w-8" />
               </motion.p>
               <WinnerCards winners={cards} />
-              <p className="mt-2 text-center text-lg text-blue-100/60">
+              <p className="mt-2 text-center text-lg text-sky-50/80">
                 Pemenang dipersilakan maju mengambil hadiah sekarang. Bila tidak hadir, hadiah hangus.
               </p>
             </div>
@@ -293,7 +293,7 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
         </main>
 
         {phase === 'ready' && (
-          <footer className="mx-auto flex flex-wrap items-center justify-center gap-6 rounded-xl bg-white/5 px-6 py-3 text-sm text-blue-100/80">
+          <footer className="mx-auto flex flex-wrap items-center justify-center gap-6 rounded-xl bg-sky-950/40 px-6 py-3 text-sm text-sky-50/90">
             <label className="flex items-center gap-2">
               Jumlah pemenang
               <Input
@@ -310,7 +310,7 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
               <select
                 value={excludeWeeks}
                 onChange={(e) => setExcludeWeeks(Number(e.target.value))}
-                className="h-8 rounded-md border border-white/20 bg-slate-800 px-2 text-white"
+                className="h-8 rounded-md border border-white/20 bg-sky-900 px-2 text-white"
               >
                 <option value={0}>— tidak —</option>
                 {[1, 2, 4, 8, 12].map((w) => (
@@ -355,7 +355,7 @@ function SpotlightBeams({ intense }: { intense: boolean }) {
       style={{
         [origin]: '-20%',
         transformOrigin: `${origin === 'left' ? '20%' : '80%'} 0%`,
-        background: `conic-gradient(from 180deg at ${origin === 'left' ? '20%' : '80%'} 0%, transparent 0deg, rgba(252,211,77,${intense ? 0.28 : 0.14}) 8deg, transparent 16deg)`,
+        background: `conic-gradient(from 180deg at ${origin === 'left' ? '20%' : '80%'} 0%, transparent 0deg, rgba(224,242,254,${intense ? 0.30 : 0.15}) 8deg, transparent 16deg)`,
       }}
       animate={{ rotate: origin === 'left' ? [-25, 20, -25] : [25, -20, 25] }}
       transition={{ duration: intense ? 3.5 : 7, repeat: Infinity, ease: 'easeInOut', delay }}
@@ -393,8 +393,8 @@ function SpotlightName({ spot, total }: { spot: Spot; total: number }) {
         key={spot.stopped ? `win-${spot.rank}` : 'reel'}
         className={`relative rounded-2xl border px-8 py-12 backdrop-blur ${
           spot.stopped
-            ? 'border-amber-300 bg-gradient-to-br from-blue-900/90 to-slate-900/90 shadow-[0_0_80px_rgba(251,191,36,0.55)]'
-            : 'border-amber-300/40 bg-white/5 shadow-[0_0_60px_rgba(251,191,36,0.15)]'
+            ? 'border-amber-300 bg-gradient-to-br from-sky-700/95 via-sky-800/95 to-sky-950/95 shadow-[0_0_80px_rgba(251,191,36,0.55)]'
+            : 'border-white/40 bg-sky-950/30 shadow-[0_0_60px_rgba(251,191,36,0.15)]'
         }`}
         animate={
           spot.stopped
@@ -435,11 +435,11 @@ function HallOfFame({ cards }: { cards: { id: number; name: string; unit: string
             initial={{ y: -120, scale: 1.4, opacity: 0 }}
             animate={{ y: 0, scale: 1, opacity: 1 }}
             transition={{ type: 'spring', bounce: 0.45, duration: 0.7 }}
-            className="rounded-xl border border-amber-300/60 bg-gradient-to-br from-blue-900/90 to-slate-900/90 px-5 py-3 text-center shadow-[0_0_20px_rgba(251,191,36,0.25)]"
+            className="rounded-xl border border-amber-300/70 bg-gradient-to-br from-sky-700/95 via-sky-800/95 to-sky-950/95 px-5 py-3 text-center shadow-[0_0_20px_rgba(251,191,36,0.25)]"
           >
             <div className="text-xs text-amber-300/80">#{c.id}</div>
             <div className="font-semibold text-amber-100">{c.name}</div>
-            <div className="text-xs text-blue-100/70">{c.unit}</div>
+            <div className="text-xs text-sky-100/80">{c.unit}</div>
           </motion.div>
         ))}
       </AnimatePresence>
