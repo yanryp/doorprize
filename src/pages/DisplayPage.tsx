@@ -183,7 +183,11 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.10)_1px,_transparent_1px)] bg-[length:28px_28px]" />
       {showBeams && <SpotlightBeams intense={phase !== 'done'} />}
 
-      <div className="absolute right-4 top-4 z-20 flex gap-1">
+      <div className="absolute right-8 top-6 z-10">
+        <AnimatedBrandLogo className="h-14 lg:h-20" />
+      </div>
+
+      <div className="absolute bottom-4 right-4 z-20 flex gap-1">
         <button
           onClick={toggleMute}
           className="rounded-md p-2 text-white/40 transition hover:bg-white/10 hover:text-white"
@@ -214,17 +218,12 @@ export function DisplayPage({ sessionId }: DisplayPageProps) {
               <Gift className="h-12 w-12 lg:h-16 lg:w-16" />
             </motion.span>
             Doorprize
-            <AnimatedBrandLogo
-              className="ml-2 h-12 lg:h-16"
-              fallback={
-                <motion.span
-                  animate={{ rotate: [0, 12, -12, 8, -8, 0] }}
-                  transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5 }}
-                >
-                  <Trophy className="h-12 w-12 lg:h-16 lg:w-16" />
-                </motion.span>
-              }
-            />
+            <motion.span
+              animate={{ rotate: [0, 12, -12, 8, -8, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5 }}
+            >
+              <Trophy className="h-12 w-12 lg:h-16 lg:w-16" />
+            </motion.span>
           </motion.h1>
           {session && (
             <p className="mt-3 text-xl text-sky-50/90 lg:text-2xl">
